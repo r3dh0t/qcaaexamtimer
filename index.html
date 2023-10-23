@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Display Times</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color:#ddd;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size:medium;
+        }
+        h1 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        #clock {
+    font-size: 5em;
+    color: #696969;
+    font-weight: bold; /* Makes the font thicker */
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Sets a bold and modern font family */
+}
+
+        label, select, input, button {
+            margin: 10px;
+            font-size: 1.2em;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4c6faf;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 50%;
+        }
+        #inputScreen, #displayScreen {
+            display: none;
+        }
+        #inputScreen.active, #displayScreen.active {
+            display: block;
+        }
+
+        table {
+            width: 80%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            margin-left: auto;
+    margin-right: auto;
+
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 20px;
+            text-align: left;
+            font-size:large;
+            font-weight: 600;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <script>
+        // Initialize exam data
+        const examData = [
+    ['Aboriginal & Torres Strait Islander Studies', 120, 15],
+    ['Accounting', 120, 15],
+    ['Aerospace Systems', 120, 10],
+    ['Agricultural Science (Paper 1)', 90, 10],
+    ['Agricultural Science (Paper 2)', 90, 10],
+    ['Ancient History', 120, 15],
+    ['Biology (Paper 1)', 90, 10],
+    ['Biology (Paper 2)', 90, 10],
+    ['Business', 120, 15],
+    ['Chemistry (Paper 1)', 90, 10],
+    ['Chemistry (Paper 2)', 90, 10],
+    ['Chinese', 120, 5],
+    ['Chinese Extension', 120, 20],
+    ['Dance', 120, 20],
+    ['Design', 120, 15],
+    ['Digital Solutions', 120, 15],
+    ['Drama', 120, 20],
+    ['Earth & Environmental Science (Paper 1)', 90, 10],
+    ['Earth & Environmental Science (Paper 2)', 90, 10],
+    ['Economics', 120, 15],
+    ['Engineering', 120, 10],
+    ['English', 120, 15],
+    ['English & Literature Extension', 120, 30],
+    ['English as an Additional Language', 120, 15],
+    ['Film, Television & New Media', 120, 20],
+    ['Food & Nutrition', 120, 10],
+    ['French', 120, 5],
+    ['French Extension', 120, 20],
+    ['General Mathematics (Paper 1)', 90, 5],
+    ['General Mathematics (Paper 2)', 90, 5],
+    ['Geography', 120, 15],
+    ['German', 120, 5],
+    ['German Extension', 120, 20],
+    ['Health', 120, 15],
+    ['Italian', 120, 5],
+    ['Japanese', 120, 5],
+    ['Legal Studies', 120, 15],
+    ['Literature', 120, 15],
+    ['Marine Science (Paper 1)', 90, 10],
+    ['Marine Science (Paper 2)', 90, 10],
+    ['Mathematical Methods (Paper 1)', 90, 5],
+    ['Mathematical Methods (Paper 2)', 90, 5],
+    ['Modern History', 120, 15],
+    ['Music', 120, 20],
+    ['Music Extension', 120, 20],
+    ['Philosophy & Reason', 120, 15],
+    ['Physical Education', 120, 15],
+    ['Physics (Paper 1)', 90, 10],
+    ['Physics (Paper 2)', 90, 10],
+    ['Psychology (Paper 1)', 90, 10],
+    ['Psychology (Paper 2)', 90, 10],
+    ['Spanish', 120, 5],
+    ['Specialist Mathematics (Paper 1)', 90, 5],
+    ['Specialist Mathematics (Paper 2)', 90, 5],
+    ['Study of Religion', 120, 15],
+    ['Visual Art', 120, 20]
+
+];
+
+// Function to calculate exam times
+function calculateTimes() {
+    const subjectSelect = document.getElementById('subject');
+    const startTimeInput = document.getElementById('startTime').value;
+    const timeTypeSelect = document.getElementById('timeType');
+    const selectedSubject = subjectSelect.options[subjectSelect.selectedIndex].text;
+    const selectedTimeType = timeTypeSelect.options[timeTypeSelect.selectedIndex].value;
+
+    // Update the <h1> to display the selected exam
+    document.querySelector('h1').innerText = `${selectedSubject}`;
+
+    const examInfo = examData.find(([subject]) => subject === selectedSubject);
+    if (!examInfo) return;
+
+    const [_, examLength, perusalLength] = examInfo;
+
+    const startTime = new Date(`1970-01-01T${startTimeInput}:00`);
+    const perusalTime = new Date(startTime.getTime());
+    const examTime = new Date(startTime.getTime() + perusalLength * 60000);
+    const warningTime = new Date(examTime.getTime() + (examLength - 10) * 60000);
+    const endTime = new Date(examTime.getTime() + examLength * 60000);
+
+    // Update the label based on the selected time type
+    document.getElementById('timeTypeLabel').innerText = `Start ${selectedTimeType}`;
+
+    document.getElementById('startPerusal').innerText = `${timeToString(perusalTime)}`;
+    document.getElementById('startExam').innerText = `${timeToString(examTime)}`;
+    document.getElementById('warning').innerText = `${timeToString(warningTime)}`;
+    document.getElementById('endExam').innerText = `${timeToString(endTime)}`;
+}
+
+
+// Function to convert time to AM/PM format, including seconds
+function timeToString(time, includeSeconds = false) {
+    let hours = time.getHours();
+    let minutes = time.getMinutes();
+    let seconds = time.getSeconds();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    const strTime = includeSeconds ? `${hours}:${minutes}:${seconds} ${ampm}` : `${hours}:${minutes} ${ampm}`;
+    return strTime;
+}
+
+// Function to update the real-time clock
+function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').innerText = timeToString(now, true);
+}
+
+
+        // Update the clock every second
+        setInterval(updateClock, 1000);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>QCAA Exam Timer</h1>
+        <div id="clock"></div>
+
+        <div id="inputScreen" class="active">
+            <label for="subject">Select Subject/Exam:</label>
+            <select id="subject">
+        <!-- Populate options dynamically -->
+        <script>
+            examData.forEach(([subject]) => {
+                document.write(`<option>${subject}</option>`);
+            });
+        </script>
+</select>
+<br>
+<label for="timeType">Select Time Type:</label>
+<select id="timeType">
+    <option value="Perusal">Perusal Time</option>
+    <option value="Planning">Planning Time</option>
+</select>
+<br>
+
+<label for="startTime">Start Time (HH:MM):</label>
+<input type="time" id="startTime">
+<br>
+<button onclick="calculateTimes(); toggleScreens();">Display Times</button>
+</div>
+<div id="displayScreen">
+    <table>
+        <tr>
+            <td id="timeTypeLabel">Start Perusal</td>
+            <td id="startPerusal"></td>
+        </tr>
+        <tr>
+            <td>Start Exam</td>
+            <td id="startExam"></td>
+        </tr>
+        <tr>
+            <td>10 Minute Warning</td>
+            <td id="warning"></td>
+        </tr>
+        <tr>
+            <td>End Exam</td>
+            <td id="endExam"></td>
+        </tr>
+    </table>
+    <button onclick="toggleScreens();">Back</button>
+</div>
+</div>
+<script>
+function toggleScreens() {
+const inputScreen = document.getElementById('inputScreen');
+const displayScreen = document.getElementById('displayScreen');
+inputScreen.classList.toggle('active');
+displayScreen.classList.toggle('active');
+}
+</script>
+</body>
+</html>
